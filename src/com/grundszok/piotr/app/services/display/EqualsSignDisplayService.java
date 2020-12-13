@@ -1,7 +1,5 @@
 package com.grundszok.piotr.app.services.display;
 
-import java.io.Serializable;
-
 public class EqualsSignDisplayService implements DisplayService {
     @Override
     public void print(String message) {
@@ -9,5 +7,4 @@ public class EqualsSignDisplayService implements DisplayService {
         System.out.println(message);
         System.out.println("=================================");
     }
-
-    }
+}

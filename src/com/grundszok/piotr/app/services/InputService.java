@@ -14,6 +14,10 @@ public class InputService {
     DisplayService displayService;
     Scanner scanner = new Scanner(System.in);
 
+    public InputService(DisplayService displayService) {
+        this.displayService = displayService;
+    }
+
     public List<Item> getShopItemsFromUser(List<Item> itemList) {
         if (itemList == null) {
             itemList = new ArrayList<>();
@@ -42,10 +46,6 @@ public class InputService {
 
     public String getUserChoice() {
         return scanner.nextLine();
-    }
-
-    public InputService(DisplayService displayService) {
-        this.displayService = displayService;
     }
 
     public void setDisplayService(DisplayService displayService) {

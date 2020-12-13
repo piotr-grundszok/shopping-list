@@ -1,17 +1,14 @@
 package com.grundszok.piotr.app.controllers;
 
 import com.grundszok.piotr.app.DisplayServiceFactory;
-import com.grundszok.piotr.app.messages.Messages;
 import com.grundszok.piotr.app.model.Item;
 import com.grundszok.piotr.app.services.InputService;
-import com.grundszok.piotr.app.services.display.AstrixDisplayService;
 import com.grundszok.piotr.app.services.display.DisplayService;
-import com.grundszok.piotr.app.services.display.PlusSignDisplayService;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.grundszok.piotr.app.messages.Messages.*;
+import static com.grundszok.piotr.app.messages.Messages.INVALID_LIST;
 
 public class MenuController {
 
@@ -20,13 +17,11 @@ public class MenuController {
 
     List<Item> shoppingList;
 
-    //Konstruktor
     public MenuController(DisplayService displayService, InputService inputService) {
         this.displayService = displayService;
         this.inputService = inputService;
     }
 
-    //Setter
     private void setDisplayService(DisplayService displayService) {
         this.displayService = displayService;
         inputService.setDisplayService(displayService);
@@ -80,7 +75,6 @@ public class MenuController {
                 case "3" -> {
                     if (listValid) {
                         print(INVALID_LIST);
-                        ;
                         break;
                     }
                     print("Czy jestes pewien ze chcesz wyczyscic liste zakupow? Jesli tak, wpisz \"3\"");
