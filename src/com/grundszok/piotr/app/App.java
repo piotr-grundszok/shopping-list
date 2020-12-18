@@ -11,6 +11,8 @@ class App {
         InputService inputService = new InputService(displayService);
         MenuController menuController = new MenuController(displayService, inputService);
 
+        System.out.println("Git test");
+
         menuController.start();
     }
 }
