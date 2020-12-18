@@ -3,6 +3,7 @@ package com.grundszok.piotr.app.controllers;
 import com.grundszok.piotr.app.DisplayServiceFactory;
 import com.grundszok.piotr.app.model.Item;
 import com.grundszok.piotr.app.services.InputService;
+import com.grundszok.piotr.app.services.PersistanceService;
 import com.grundszok.piotr.app.services.display.DisplayService;
 
 import java.util.List;
@@ -14,12 +15,14 @@ public class MenuController {
 
     DisplayService displayService;
     InputService inputService;
+    PersistanceService persistanceService;
 
     List<Item> shoppingList;
 
-    public MenuController(DisplayService displayService, InputService inputService) {
+    public MenuController(DisplayService displayService, InputService inputService, PersistanceService persistanceService) {
         this.displayService = displayService;
         this.inputService = inputService;
+        this.persistanceService = persistanceService;
     }
 
     private void setDisplayService(DisplayService displayService) {
@@ -84,6 +87,7 @@ public class MenuController {
                     }
                 }
                 case "4" -> chooseDisplayStrategyFromUserInput();
+                case "5" -> persistanceService.save(shoppingList);
                 case "X" -> System.exit(0);
             }
         }
