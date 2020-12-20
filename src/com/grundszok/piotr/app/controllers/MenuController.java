@@ -1,6 +1,7 @@
 package com.grundszok.piotr.app.controllers;
 
 import com.grundszok.piotr.app.DisplayServiceFactory;
+import com.grundszok.piotr.app.exceptions.EmptyShoppingListException;
 import com.grundszok.piotr.app.model.Item;
 import com.grundszok.piotr.app.services.InputService;
 import com.grundszok.piotr.app.services.PersistanceService;
@@ -36,7 +37,7 @@ public class MenuController {
                 "Dostepne opcje: + , = , *\n" +
                 "Zeby wyjsc wproadz: X";
 
-        print(msg);
+        displayService.print(msg);
         char displayCharFromUser = inputService.getDisplayCharFromUser();
         while (displayCharFromUser != 'X') {
             try {
@@ -46,7 +47,7 @@ public class MenuController {
                 displayService.print("Unknown character for display type");
             }
 
-            print(msg);
+            displayService.print(msg);
             displayCharFromUser = inputService.getDisplayCharFromUser();
         }
     }
@@ -61,43 +62,51 @@ public class MenuController {
             final boolean listValid = shoppingList == null || shoppingList.isEmpty();
             switch (inputService.getUserChoice()) {
                 case "1" -> {
-                    print("Podaj pierwszy produkt:");
+                    displayService.print("Podaj pierwszy produkt:");
                     this.shoppingList = inputService.getShopItemsFromUser(this.shoppingList);
                 }
                 case "2" -> {
                     if (listValid) {
-                        print(INVALID_LIST);
+                        displayService.print(INVALID_LIST);
                         break;
                     }
 
                     String productCollection = this.shoppingList.stream().map(Object::toString).collect(Collectors.joining("\n"));
-                    print(productCollection);
+                    displayService.print(productCollection);
                     displayService.printWithoutStyle("\n\nWprowadz dowolny przycisk zeby przejsc do menu");
                     inputService.getUserChoice();
                 }
                 case "3" -> {
                     if (listValid) {
-                        print(INVALID_LIST);
+                        displayService.print(INVALID_LIST);
                         break;
                     }
-                    print("Czy jestes pewien ze chcesz wyczyscic liste zakupow? Jesli tak, wpisz \"3\"");
+                    displayService.print("Czy jestes pewien ze chcesz wyczyscic liste zakupow? Jesli tak, wpisz \"3\"");
                     if (inputService.getUserChoice().equals("3")) {
                         this.shoppingList.clear();
-                        print("Wyczyszczono liste zakupów");
+                        displayService.print("Wyczyszczono liste zakupów");
                     }
                 }
                 case "4" -> chooseDisplayStrategyFromUserInput();
-                case "5" -> persistanceService.save(shoppingList);
+                case "5" -> {
+                    try {
+                        persistanceService.save(shoppingList);
+                        displayService.print(String.format("Zapisano %d elementów do pliku", shoppingList.size()));
+                    } catch (EmptyShoppingListException exception) {
+                        displayService.print(exception.getMessage());
+                    }
+                }
                 case "X" -> System.exit(0);
             }
         }
     }
 
     private void printMenu() {
-        print("1. Stworz liste zakupow\n"
+        displayService.print("1. Stworz liste zakupow\n"
                 + "2. Wyświetl liste zakupow\n"
                 + "3. Wyczyść liste zakupow\n"
-                + "4. Zmien styl wyświetlania\n\n"
+                + "4. Zmien styl wyświetlania\n"
+                + "5. Zapisz listę zakupow do pliku\n\n"
                 + "X. Zakoncz program");
     }
 }
