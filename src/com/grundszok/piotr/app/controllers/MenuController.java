@@ -2,28 +2,35 @@ package com.grundszok.piotr.app.controllers;
 
 import com.grundszok.piotr.app.DisplayServiceFactory;
 import com.grundszok.piotr.app.exceptions.EmptyShoppingListException;
+import com.grundszok.piotr.app.exceptions.WriteToFileException;
 import com.grundszok.piotr.app.model.Item;
 import com.grundszok.piotr.app.services.InputService;
-import com.grundszok.piotr.app.services.PersistanceService;
+import com.grundszok.piotr.app.services.PersistenceService;
 import com.grundszok.piotr.app.services.display.DisplayService;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.grundszok.piotr.app.messages.Messages.INVALID_LIST;
+import static com.grundszok.piotr.app.messages.Messages.*;
+import static java.lang.String.format;
+import static java.lang.String.valueOf;
+
 
 public class MenuController {
 
-    DisplayService displayService;
-    InputService inputService;
-    PersistanceService persistanceService;
+    private final char closingCharacter = 'X';
+    private final InputService inputService;
+    private final PersistenceService persistenceService;
+    private DisplayService displayService;
 
-    List<Item> shoppingList;
+    private List<Item> shoppingList;
 
-    public MenuController(DisplayService displayService, InputService inputService, PersistanceService persistanceService) {
+    private boolean run = true;
+
+    public MenuController(DisplayService displayService, InputService inputService, PersistenceService persistenceService) {
         this.displayService = displayService;
         this.inputService = inputService;
-        this.persistanceService = persistanceService;
+        this.persistenceService = persistenceService;
     }
 
     private void setDisplayService(DisplayService displayService) {
@@ -31,82 +38,88 @@ public class MenuController {
         inputService.setDisplayService(displayService);
     }
 
-    public void chooseDisplayStrategyFromUserInput() {
-        String msg = "Witaj!\n" +
-                "Wybierz ustawienie wyswietlania\n" +
-                "Dostepne opcje: + , = , *\n" +
-                "Zeby wyjsc wproadz: X";
-
-        displayService.print(msg);
-        char displayCharFromUser = inputService.getDisplayCharFromUser();
-        while (displayCharFromUser != 'X') {
-            try {
-                DisplayService displayService = DisplayServiceFactory.produceDisplayServiceFromChar(displayCharFromUser);
-                setDisplayService(displayService);
-            } catch (IllegalArgumentException exception) {
-                displayService.print("Unknown character for display type");
-            }
-
-            displayService.print(msg);
-            displayCharFromUser = inputService.getDisplayCharFromUser();
-        }
-    }
-
     public void print(String msg) {
         displayService.print(msg);
     }
 
     public void start() {
-        while (true) {
+        while (run) {
             printMenu();
-            final boolean listValid = shoppingList == null || shoppingList.isEmpty();
             switch (inputService.getUserChoice()) {
-                case "1" -> {
-                    displayService.print("Podaj pierwszy produkt:");
-                    this.shoppingList = inputService.getShopItemsFromUser(this.shoppingList);
-                }
-                case "2" -> {
-                    if (listValid) {
-                        displayService.print(INVALID_LIST);
-                        break;
-                    }
-
-                    String productCollection = this.shoppingList.stream().map(Object::toString).collect(Collectors.joining("\n"));
-                    displayService.print(productCollection);
-                    displayService.printWithoutStyle("\n\nWprowadz dowolny przycisk zeby przejsc do menu");
-                    inputService.getUserChoice();
-                }
-                case "3" -> {
-                    if (listValid) {
-                        displayService.print(INVALID_LIST);
-                        break;
-                    }
-                    displayService.print("Czy jestes pewien ze chcesz wyczyscic liste zakupow? Jesli tak, wpisz \"3\"");
-                    if (inputService.getUserChoice().equals("3")) {
-                        this.shoppingList.clear();
-                        displayService.print("Wyczyszczono liste zakupów");
-                    }
-                }
-                case "4" -> chooseDisplayStrategyFromUserInput();
-                case "5" -> {
-                    try {
-                        persistanceService.save(shoppingList);
-                        displayService.print(String.format("Zapisano %d elementów do pliku", shoppingList.size()));
-                    } catch (EmptyShoppingListException exception) {
-                        displayService.print(exception.getMessage());
-                    }
-                }
-                case "X" -> System.exit(0);
+                case "1" -> createList();
+                case "2" -> showList();
+                case "3" -> clearList();
+                case "4" -> changeDisplay();
+                case "5" -> saveListToFile();
+                case "x", "X" -> exit();
             }
         }
     }
 
     private void printMenu() {
-        displayService.print("1. Stworz liste zakupow\n"
-                + "2. Wyświetl liste zakupow\n"
-                + "3. Wyczyść liste zakupow\n"
-                + "4. Zmien styl wyświetlania\n"
-                + "5. Zapisz listę zakupow do pliku\n\n"
-                + "X. Zakoncz program");
+        displayService.print(MENU_ITEMS);
+    }
+
+    private void createList() {
+        displayService.print(FIRST_PRODUCT);
+        this.shoppingList = inputService.getShopItemsFromUser(this.shoppingList);
+    }
+
+    private void showList() {
+        if (validateList()) {
+            String productCollection = this.shoppingList.stream().map(Object::toString).collect(Collectors.joining("\n"));
+            displayService.print(productCollection);
+            displayService.printWithoutStyle(NEXT_PRODUCT);
+            inputService.getUserChoice();
+        }
+    }
+
+    private void clearList() {
+        if (validateList()) {
+            displayService.print(format("%s \"%s\"", CONFIRM_CLEAR_LIST, closingCharacter));
+            if (inputService.getUserChoice().equals(valueOf(closingCharacter))) {
+                this.shoppingList.clear();
+                displayService.print(CLEAR_CONFIRMED);
+            }
+        }
+    }
+
+    private void saveListToFile() {
+        try {
+            persistenceService.save(shoppingList);
+            displayService.print(format(SAVED_TO_FILE_SIZE, shoppingList.size()));
+        } catch (EmptyShoppingListException | WriteToFileException exception) {
+            displayService.print(exception.getMessage());
+        }
+    }
+
+    private void changeDisplay() {
+        displayService.print(GREETING_MESSAGE + closingCharacter);
+        char displayCharFromUser = inputService.getDisplayCharFromUser();
+        while (displayCharFromUser != closingCharacter) {
+            try {
+                DisplayService displayService = DisplayServiceFactory.produceDisplayServiceFromChar(displayCharFromUser);
+                setDisplayService(displayService);
+            } catch (IllegalArgumentException exception) {
+                displayService.print(INVALID_CHARACTER);
+            }
+
+            displayService.print(GREETING_MESSAGE);
+            displayCharFromUser = inputService.getDisplayCharFromUser();
+        }
+    }
+
+    private void exit() {
+        displayService.print(GOODBYE);
+        run = false;
+    }
+
+    private boolean validateList() {
+        final boolean listValid = shoppingList == null || shoppingList.isEmpty();
+        if (!listValid) {
+            displayService.print(INVALID_LIST);
+            return false;
+        }
+        return true;
     }
 }
