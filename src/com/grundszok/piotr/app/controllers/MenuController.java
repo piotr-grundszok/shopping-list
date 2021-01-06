@@ -8,6 +8,9 @@ import com.grundszok.piotr.app.services.InputService;
 import com.grundszok.piotr.app.services.PersistenceService;
 import com.grundszok.piotr.app.services.display.DisplayService;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -66,8 +69,10 @@ public class MenuController {
     }
 
     private void showList() {
-        if (validateList()) {
-            String productCollection = this.shoppingList.stream().map(Object::toString).collect(Collectors.joining("\n"));
+        if (listValid()) {
+            String productCollection = this.shoppingList.stream()
+                    .map(Object::toString)
+                    .collect(Collectors.joining("\n"));
             displayService.print(productCollection);
             displayService.printWithoutStyle(NEXT_PRODUCT);
             inputService.getUserChoice();
@@ -75,7 +80,7 @@ public class MenuController {
     }
 
     private void clearList() {
-        if (validateList()) {
+        if (listValid()) {
             displayService.print(format("%s \"%s\"", CONFIRM_CLEAR_LIST, closingCharacter));
             if (inputService.getUserChoice().equals(valueOf(closingCharacter))) {
                 this.shoppingList.clear();
@@ -114,9 +119,9 @@ public class MenuController {
         run = false;
     }
 
-    private boolean validateList() {
-        final boolean listValid = shoppingList == null || shoppingList.isEmpty();
-        if (!listValid) {
+    private boolean listValid() {
+        final boolean listInvalid = shoppingList == null || shoppingList.isEmpty();
+        if (listInvalid) {
             displayService.print(INVALID_LIST);
             return false;
         }
