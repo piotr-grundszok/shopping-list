@@ -14,13 +14,23 @@ public final class Messages {
     public static final String SAVED_TO_FILE_SIZE = "Zapisano %d elementów do pliku";
     public static final String MENU_ITEMS =
             "1. Stworz liste zakupow\n"
-            + "2. Wyświetl liste zakupow\n"
-            + "3. Wyczyść liste zakupow\n"
-            + "4. Zmien styl wyświetlania\n"
-            + "5. Zapisz listę zakupow do pliku\n\n"
-            + "X. Zakoncz program";
+                    + "2. Wyświetl liste zakupow\n"
+                    + "3. Wyczyść liste zakupow\n"
+                    + "4. Zmien styl wyświetlania\n"
+                    + "5. Zapisz listę zakupow do pliku\n"
+                    + "6. Wczytaj listę zakupów z pliku\n\n"
+                    + "X. Zakoncz program";
     public static final String GOODBYE = "Udanych zakupów!";
     public static final String SAVING_ERROR = "Problem z zapisem do pliku!";
+    public static final String CHOOSE_LIST_NUMBER = "Wybierz numer listy, którą chcesz wczytać:";
+    public static final String INVALID_NUMBER = "Niepoprawny numer, spróbuj ponownie";
+    public static final String USER_CONFIRMATION_MALE = "\nJeśli tak wprowadź \"T\", jeśli nie" +
+            "wprowdz \"N\"";
+    public static final String SAVE_LIST_CONFIRMATION = "Czy chcesz zapisać aktualną listę?";
+    public static final String UNAPPROVED_USER_INPUT = "Niepoprawny wybór, spróbuj ponownie";
+    public static final String CLEAR_LIST_CONFIRMATION = "Czy chcesz wyczyścić obecną listę?";
+    public static final String GIVE_AMMOUNT = "Podaj ilość:";
+    public static final String ANOTHER_PRODUCT = "Dodano %s. \nPodaj kolejny produkt albo wpisz \"X\" żeby wyjść:";
 
     private Messages() {
     }
