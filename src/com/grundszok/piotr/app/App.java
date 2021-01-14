@@ -1,6 +1,7 @@
 package com.grundszok.piotr.app;
 
 import com.grundszok.piotr.app.controllers.MenuController;
+import com.grundszok.piotr.app.services.FileDirectoryService;
 import com.grundszok.piotr.app.services.InputService;
 import com.grundszok.piotr.app.services.PersistenceService;
 import com.grundszok.piotr.app.services.display.AstrixDisplayService;
@@ -12,7 +13,8 @@ class App {
         MenuController menuController = new MenuController(
                 displayService,
                 new InputService(displayService),
-                new PersistenceService());
+                new PersistenceService(),
+                new FileDirectoryService());
 
         menuController.start();
     }

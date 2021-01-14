@@ -4,6 +4,7 @@ import com.grundszok.piotr.app.DisplayServiceFactory;
 import com.grundszok.piotr.app.exceptions.EmptyShoppingListException;
 import com.grundszok.piotr.app.exceptions.WriteToFileException;
 import com.grundszok.piotr.app.model.Item;
+import com.grundszok.piotr.app.services.FileDirectoryService;
 import com.grundszok.piotr.app.services.InputService;
 import com.grundszok.piotr.app.services.PersistenceService;
 import com.grundszok.piotr.app.services.display.DisplayService;
@@ -22,15 +23,17 @@ public class MenuController {
     private final InputService inputService;
     private final PersistenceService persistenceService;
     private DisplayService displayService;
+    private FileDirectoryService fileDirectoryService;
 
     private List<Item> shoppingList;
 
     private boolean run = true;
 
-    public MenuController(DisplayService displayService, InputService inputService, PersistenceService persistenceService) {
+    public MenuController(DisplayService displayService, InputService inputService, PersistenceService persistenceService, FileDirectoryService fileDirectoryService) {
         this.displayService = displayService;
         this.inputService = inputService;
         this.persistenceService = persistenceService;
+        this.fileDirectoryService = fileDirectoryService;
     }
 
     private void setDisplayService(DisplayService displayService) {
@@ -48,10 +51,16 @@ public class MenuController {
                 case "3" -> clearList();
                 case "4" -> changeDisplay();
                 case "5" -> saveListToFile();
+                case "6" -> loadListFromFile();
                 case "x", "X" -> exit();
             }
         }
     }
+
+    private void loadListFromFile(){
+        fileDirectoryService.listFiles((file, filename) -> filename.endsWith(".txt")).forEach((x,y) -> System.out.println(x + ". " + y));
+    }
+
 
     private void printMenu() {
         displayService.print(MENU_ITEMS);
