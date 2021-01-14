@@ -8,9 +8,6 @@ import com.grundszok.piotr.app.services.InputService;
 import com.grundszok.piotr.app.services.PersistenceService;
 import com.grundszok.piotr.app.services.display.DisplayService;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -41,9 +38,6 @@ public class MenuController {
         inputService.setDisplayService(displayService);
     }
 
-    public void print(String msg) {
-        displayService.print(msg);
-    }
 
     public void start() {
         while (run) {
@@ -69,10 +63,8 @@ public class MenuController {
     }
 
     private void showList() {
-        if (listValid()) {
-            String productCollection = this.shoppingList.stream()
-                    .map(Object::toString)
-                    .collect(Collectors.joining("\n"));
+        if (validateList()) {
+            String productCollection = this.shoppingList.stream().map(Object::toString).collect(Collectors.joining("\n"));
             displayService.print(productCollection);
             displayService.printWithoutStyle(NEXT_PRODUCT);
             inputService.getUserChoice();
@@ -80,7 +72,7 @@ public class MenuController {
     }
 
     private void clearList() {
-        if (listValid()) {
+        if (validateList()) {
             displayService.print(format("%s \"%s\"", CONFIRM_CLEAR_LIST, closingCharacter));
             if (inputService.getUserChoice().equals(valueOf(closingCharacter))) {
                 this.shoppingList.clear();
@@ -119,10 +111,16 @@ public class MenuController {
         run = false;
     }
 
-    private boolean listValid() {
+    private boolean validateList() {
+        return validateList(true);
+    }
+
+    private boolean validateList(boolean withMessage) {
         final boolean listInvalid = shoppingList == null || shoppingList.isEmpty();
         if (listInvalid) {
-            displayService.print(INVALID_LIST);
+            if (withMessage) {
+                displayService.print(INVALID_LIST);
+            }
             return false;
         }
         return true;

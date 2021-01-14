@@ -6,6 +6,9 @@ import com.grundszok.piotr.app.services.display.DisplayService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
+
+import static com.grundszok.piotr.app.messages.Messages.*;
 
 public class InputService {
     final static char DEFAULT_STYLE = '*';
@@ -27,11 +30,11 @@ public class InputService {
             if (itemName.trim().toUpperCase().equals("X")) {
                 break;
             }
-            displayService.print("Podaj ilość:");
+            displayService.print(GIVE_AMMOUNT);
 
             String itemQuantity = scanner.nextLine();
             itemList.add(new Item(itemName, itemQuantity));
-            displayService.print("Dodano " + itemName + ". \nPodaj kolejny produkt, albo wpisz \"X\" żeby wyjść:");
+            displayService.print(String.format(ANOTHER_PRODUCT, itemName));
         }
         return itemList;
     }
@@ -47,6 +50,27 @@ public class InputService {
     public String getUserChoice() {
         return scanner.nextLine();
     }
+
+
+    public String getApprovedUserChoice(Set<String> approvedInputSet, boolean caseInsensitive) {
+        String dirtyUserInput = scanner.nextLine();
+        if (caseInsensitive) {
+            dirtyUserInput = dirtyUserInput.toUpperCase();
+        }
+        boolean isApproved = approvedInputSet.contains(dirtyUserInput);
+        while (!isApproved) {
+            displayService.printWithoutStyle(UNAPPROVED_USER_INPUT);
+            dirtyUserInput = scanner.nextLine();
+            isApproved = approvedInputSet.contains(dirtyUserInput);
+        }
+        return dirtyUserInput;
+    }
+
+
+    public String getApprovedUserChoice(Set<String> approvedInputSet) {
+        return getApprovedUserChoice(approvedInputSet, true);
+    }
+
 
     public void setDisplayService(DisplayService displayService) {
         this.displayService = displayService;
