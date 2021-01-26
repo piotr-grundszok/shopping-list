@@ -1,8 +1,6 @@
 package com.grundszok.piotr.app.services;
 
-import com.grundszok.piotr.app.exceptions.EmptyShoppingListException;
 import com.grundszok.piotr.app.exceptions.WriteToFileException;
-import com.grundszok.piotr.app.messages.Messages;
 import com.grundszok.piotr.app.model.Item;
 
 import java.io.BufferedReader;
@@ -13,8 +11,10 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static com.grundszok.piotr.app.messages.Messages.INVALID_LIST;
+import static com.grundszok.piotr.app.messages.Messages.SAVING_ERROR;
 
 public class PersistenceService {
     public static final String FILENAME = "ShoppingList_";
@@ -23,15 +23,16 @@ public class PersistenceService {
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("HH-mm-ss");
 
     public void save(List<Item> shoppingList) {
+        if (Objects.isNull(shoppingList)) {
+            throw new WriteToFileException(INVALID_LIST);
+        }
         final String currentTime = LocalDateTime.now().format(dateTimeFormatter);
         try (FileWriter fileWriter = new FileWriter(FILENAME + currentTime + FILE_EXTENSION)) {
             for (Item item : shoppingList) {
                 fileWriter.write(item.toString() + "\n");
             }
         } catch (IOException exception) {
-            throw new WriteToFileException(Messages.SAVING_ERROR, exception);
-        } catch (NullPointerException exception) {
-            throw new EmptyShoppingListException(INVALID_LIST, exception);
+            throw new WriteToFileException(SAVING_ERROR, exception);
         }
     }
 

@@ -1,7 +1,6 @@
 package com.grundszok.piotr.app.controllers;
 
 import com.grundszok.piotr.app.DisplayServiceFactory;
-import com.grundszok.piotr.app.exceptions.EmptyShoppingListException;
 import com.grundszok.piotr.app.exceptions.WriteToFileException;
 import com.grundszok.piotr.app.model.Item;
 import com.grundszok.piotr.app.services.InputService;
@@ -82,11 +81,15 @@ public class MenuController {
     }
 
     private void saveListToFile() {
+        if (!validateList()) {
+            return;
+        }
+
         try {
             persistenceService.save(shoppingList);
             displayService.print(format(SAVED_TO_FILE_SIZE, shoppingList.size()));
-        } catch (EmptyShoppingListException | WriteToFileException exception) {
-            displayService.print(exception.getMessage());
+        } catch (WriteToFileException exception) {
+            displayService.print(SAVING_ERROR);
         }
     }
 
